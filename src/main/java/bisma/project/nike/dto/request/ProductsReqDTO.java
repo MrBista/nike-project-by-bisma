@@ -22,6 +22,8 @@ public class ProductsReqDTO {
     @NotNull(message = "category tidak boleh null")
     private Long categoryId;
 
+    private Long status;
+
 
     @Override
     public String toString() {
@@ -30,7 +32,8 @@ public class ProductsReqDTO {
                 ", description='" + description + '\'' +
                 ", mainImg='" + mainImg + '\'' +
                 ", price='" + price + '\'' +
-                ", categoryId='" + categoryId + '\'' +
+                ", categoryId=" + categoryId +
+                ", status=" + status +
                 '}';
     }
 }

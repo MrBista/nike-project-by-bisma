@@ -1,12 +1,13 @@
-package bisma.project.nike.services.auth;
+package bisma.project.nike.auth;
 
 import bisma.project.nike.model.ERole;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -17,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.PrintWriter;
 
@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
     @Autowired
     UserDetailsServiceImpl userDetailsService;
 
@@ -53,19 +54,21 @@ public class WebSecurityConfig {
         return authenticationProvider;
     }
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(sessoin -> sessoin.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(HttpMethod.POST, "/api/v1/users/*").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/v1/categories").hasAnyRole(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
-                                .requestMatchers(HttpMethod.PUT, "/api/v1/categories/*").hasAnyRole(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
-                                .requestMatchers(HttpMethod.DELETE, "/api/v1/categories/*").hasAnyRole(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
-                                .requestMatchers(HttpMethod.POST, "/api/v1/products").hasAnyRole(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
-                                .requestMatchers(HttpMethod.PUT, "/api/v1/products/*").hasAnyRole(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
-                                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/*").hasAnyRole(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
+                                .requestMatchers(HttpMethod.POST, "/api/v1/categories").hasAnyAuthority(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/categories/*").hasAnyAuthority(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/categories/*").hasAnyAuthority(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
+                                .requestMatchers(HttpMethod.POST, "/api/v1/products").hasAnyAuthority(ERole.SUPER_ADMIN.name(), ERole.ADMIN.name())
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/products/*").hasAnyAuthority(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/*").hasAnyAuthority(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
+
                                 .anyRequest().authenticated()
 
                 )

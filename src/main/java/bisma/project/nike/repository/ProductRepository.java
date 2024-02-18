@@ -8,17 +8,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@EnableJpaRepositories
+@Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Modifying
     @Transactional
     Product save(@NonNull Product products);
+
+    @Transactional
+    void deleteById(Long id);
 
 
     Page<Product> findAll(Pageable pageable);

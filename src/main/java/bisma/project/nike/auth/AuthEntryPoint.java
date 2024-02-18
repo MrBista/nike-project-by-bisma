@@ -1,4 +1,4 @@
-package bisma.project.nike.services.auth;
+package bisma.project.nike.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

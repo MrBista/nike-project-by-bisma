@@ -1,4 +1,4 @@
-package bisma.project.nike.services.auth;
+package bisma.project.nike.auth;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -32,9 +32,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             String jwt = getJwtToken(request);
             if (jwt != null) {
                 String username = jwtUtils.decodeJwt(jwt);
-                System.out.println("username nya: " + username);
-                SecurityContext context = SecurityContextHolder.createEmptyContext();
                 UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
+                SecurityContext context = SecurityContextHolder.createEmptyContext();
+
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

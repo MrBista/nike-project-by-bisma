@@ -1,6 +1,7 @@
 package bisma.project.nike.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -18,8 +20,8 @@ import java.sql.Timestamp;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners({AuditingEntityListener.class})
-public class Product {
+@EntityListeners(EntityCreationListener.class)
+public class Product extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -52,16 +54,10 @@ public class Product {
     @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 1")
     private Long status;
 
-    @CreatedDate
-    @Column(name = "created_at")
-    private Timestamp createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private Timestamp updatedAt;
-
-
-
+    @JsonManagedReference
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @Column(name = "product_id")
+    private List<CommentProduct> comment;
 
     @Override
     public String toString() {
