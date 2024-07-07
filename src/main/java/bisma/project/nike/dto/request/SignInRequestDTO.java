@@ -1,6 +1,7 @@
 package bisma.project.nike.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -9,12 +10,10 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class SignInRequestDTO {
-    @NotBlank(message = "email tidak boleh kosong")
+    @NotBlank(message = "email cannot be blank")
+    @NotNull(message = "email cannot be empty")
     private String email;
 
-    @NotBlank(message = "username tidak boleh kosong")
-    private String username;
-
-    @NotBlank(message = "password tidak boleh kosong")
+    @NotBlank(message = "password cannot be empty")
     private String password;
 }

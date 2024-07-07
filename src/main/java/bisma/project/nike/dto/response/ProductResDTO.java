@@ -11,9 +11,9 @@ public class ProductResDTO {
     private Long id;
     private String name;
     private String description;
-    private String price;
-    private String mainImg;
-    private Long categoryId;
+    private String cover;
+
+
 
 
     @Override
@@ -22,9 +22,7 @@ public class ProductResDTO {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", price='" + price + '\'' +
-                ", mainImg='" + mainImg + '\'' +
-                ", categoryId=" + categoryId +
+                ", mainImg='" + cover + '\'' +
                 '}';
     }
 }

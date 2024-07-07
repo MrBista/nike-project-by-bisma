@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
@@ -44,11 +45,20 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "firstname")
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "lastname")
+    @Column(name = "last_name")
     private String lastName;
+
+    @Column(name = "avatar")
+    private String avatar;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "birth_of_date")
+    private Date date;
 
     @NotBlank(message = "password is required")
     @Column(name = "password")
@@ -62,9 +72,6 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Product> products;
 
     @CreatedDate
     @Column(name = "created_at")

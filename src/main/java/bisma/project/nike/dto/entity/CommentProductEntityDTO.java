@@ -5,13 +5,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 public class CommentProductEntityDTO {
-    Long id;
-    String comment;
-    String createdBy;
-    ProductEntityDTO products;
+    private Long id;
+    private String comment;
+    private String createdBy;
+    public record ProductComment(Long id){
+    }
+
+    ProductComment product;
+
+    private Long userId;
+
+
 }

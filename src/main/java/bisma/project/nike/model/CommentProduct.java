@@ -39,10 +39,10 @@ public class CommentProduct extends Auditable {
         CommentProductEntityDTO dto = new CommentProductEntityDTO();
         dto.setId(this.id);
         dto.setComment(comment);
-        dto.setCreatedBy(this.getCreatedBy());
-        ProductEntityDTO idProduct = new ProductEntityDTO(product.getId());
-        dto.setProducts(idProduct);
+        CommentProductEntityDTO.ProductComment idProduct = new CommentProductEntityDTO.ProductComment(product.getId());
+        dto.setProduct(idProduct);
         return dto;
+
     }
 
     @Override

@@ -1,5 +1,7 @@
 package bisma.project.nike.model;
 
+import bisma.project.nike.dto.entity.CategoryEntityDTO;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "categories")
@@ -29,27 +32,39 @@ public class Category extends Auditable{
     @Column(name = "name")
     private String name;
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "category")
-    @Column(name = "category_id")
-    private List<Product> products;
+    @Column(name = "description")
+    private String description;
 
-    @CreatedDate
-    @Column(name = "created_at")
-    private Timestamp createdAt;
+    // nama mappedBy itu nama property @manytoone nya
+    @JsonBackReference
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = bisma.project.nike.model.CategorySub.class)
+    private List<CategorySub> subCategories;
 
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    public CategoryEntityDTO toDto() {
+//        List<CategoryEntityDTO.SubCategory> subCategoriesMapped= subCategories
+//                .stream()
+//                .map(sub -> new CategoryEntityDTO.SubCategory(sub.getId(), sub.getName(), sub.getDescription()))
+//                .collect(Collectors.toList());
+
+        return CategoryEntityDTO
+                .builder()
+                .id(this.getId())
+                .name(this.getName())
+                .description(this.getDescription())
+                .createdAt(this.getCreatedAt())
+                .updatedAt(this.getUpdatedAt())
+//                .subCategories(subCategoriesMapped)
+                .build();
+    }
+
 
     @Override
     public String toString() {
         return "Category{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", products=" + products +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", description='" + description + '\'' +
+                ", subCategories=" + subCategories +
                 '}';
     }
 }

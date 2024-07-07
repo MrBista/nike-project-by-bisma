@@ -1,5 +1,8 @@
 package bisma.project.nike.controller;
 
+import bisma.project.nike.dto.entity.ProductEntityDTO;
+import bisma.project.nike.dto.request.CategorySubReqDTO;
+import bisma.project.nike.dto.request.ProductCategoryDto;
 import bisma.project.nike.dto.request.ProductsReqDTO;
 import bisma.project.nike.dto.response.CommonResponse;
 import bisma.project.nike.dto.response.ProductResDTO;
@@ -16,9 +19,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductController {
+
 
     @Autowired
     ProductRepository productRepository;
@@ -41,7 +48,7 @@ public class ProductController {
                                                  @RequestParam(defaultValue = "id", required = false) String orderBy) {
 
 
-       Page<Product> allProducts = productService.findAllProduct(name, categoryId, orderBy, typeOrder, page, size);
+       Map<String, Object> allProducts = productService.findAllProduct(name, categoryId, orderBy, typeOrder, page, size);
 
         return CommonResponse.generateResponse(allProducts, "successfully get all products", HttpStatus.OK);
     }
@@ -74,8 +81,18 @@ public class ProductController {
 
     @RequestMapping(method = RequestMethod.GET, path = "/{id}")
     public ResponseEntity<Object>getProductById(@PathVariable Long id) {
-        ProductResDTO res = productService.findProductById(id);
+        Product res = productService.findProductById(id);
         return CommonResponse.generateResponse(res, "successfully get detail product", HttpStatus.OK);
+    }
+
+
+
+    @RequestMapping(method = RequestMethod.POST, path = "/{id}/categories")
+    public ResponseEntity<Object> createProductCategories(@PathVariable Long id, @RequestBody CategorySubReqDTO categorySubReqDTO ) {
+
+        Product res = productService.createProductCategories(id, categorySubReqDTO);
+
+        return CommonResponse.generateResponse(res, "successfully create product categories", HttpStatus.CREATED);
     }
 
 

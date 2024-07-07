@@ -17,7 +17,7 @@ public class SignUpRequestDTO {
 
     @NotBlank(message = "username tidak boleh kosong")
     @NotNull(message = "username tidak boleh null")
-    @Size(min = 5, max = 30, message = "username minimal 5 karakter dan maksimal 30 karaketer")
+    @Size(min = 5, max = 60, message = "username minimal 5 karakter dan maksimal 30 karaketer")
     private String username;
 
     @Email(message = "Invalid email")

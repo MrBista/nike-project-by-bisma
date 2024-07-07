@@ -1,18 +1,22 @@
 package bisma.project.nike.model;
 
+import bisma.project.nike.dto.entity.CategoryEntityDTO;
+import bisma.project.nike.dto.entity.ProductEntityDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "products")
@@ -34,40 +38,47 @@ public class Product extends Auditable {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "price")
-    private String price;
+    @Column(name = "summary")
+    private String summary;
 
-    @Column(name = "main_img")
-    private String mainImg;
 
-    @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
-    private Category category;
+    @Column(name = "cover")
+    private String cover;
 
-    @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User user;
+    @Column(name = "created_by")
+    private String createdBy;
 
-    // 0 in active, 1 active
-    @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 1")
-    private Long status;
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    @Column(name = "product_id")
-    private List<CommentProduct> comment;
+    @ManyToMany(fetch = FetchType.LAZY, targetEntity = bisma.project.nike.model.CategorySub.class)
+    @JoinTable( name = "products_sub_categories",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "sub_category_id")
+    )
+    @JsonIgnore
+    private Set<CategorySub> categoriesProduct = new HashSet<>();
+
+
+    public void addCategory (CategorySub categorySub) {
+        this.categoriesProduct.add(categorySub);
+        categorySub.getProducts().add(this);
+    }
+
+    public void removeCategory(long categoryId) {
+        CategorySub categorySub = this.categoriesProduct.stream().filter(t -> t.getId() == categoryId).findFirst().orElse(null);
+        if (categorySub != null) {
+            this.categoriesProduct.remove(categorySub);
+            categorySub.getProducts().remove(this);
+        }
+    }
 
     @Override
     public String toString() {
-        return "Products{" +
+        return "Product{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", price='" + price + '\'' +
-                ", mainImg='" + mainImg + '\'' +
-                ", category=" + category +
+                ", summary='" + summary + '\'' +
+                ", cover='" + cover + '\'' +
                 '}';
     }
 }
