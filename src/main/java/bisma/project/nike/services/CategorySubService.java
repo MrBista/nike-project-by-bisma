@@ -43,6 +43,7 @@ public class CategorySubService {
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "sub categories not found"))
                 .toDTO();
+
         return findById;
     }
 
