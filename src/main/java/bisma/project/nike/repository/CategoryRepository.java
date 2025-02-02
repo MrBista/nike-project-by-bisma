@@ -19,4 +19,5 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     Page<Category>findAllById(Long id, Pageable pageable);
 
 
+    long countByCreatedAtBetween(long startEpochMs, long endEpochMs);
 }

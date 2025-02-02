@@ -1,9 +1,12 @@
 package bisma.project.nike.services;
 
+import bisma.project.nike.dto.entity.CategoryEntityDTO;
 import bisma.project.nike.dto.request.CategoryReqDTO;
 import bisma.project.nike.dto.response.CategoryResDTO;
 import bisma.project.nike.model.Category;
+import bisma.project.nike.model.CategorySub;
 import bisma.project.nike.repository.CategoryRepository;
+import bisma.project.nike.repository.CategorySubRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,11 +26,14 @@ public class CategoryService {
     @Autowired
     CategoryRepository categoryRepository;
 
-    public List<CategoryResDTO> findAllCategory(String orderBy, String typeOrder, int page, int size, Long id) {
-        Sort sort = Sort.by(Sort.Order.asc(orderBy));
-        if (typeOrder.equals("desc")) {
-            sort = Sort.by(Sort.Order.desc(orderBy));
-        }
+    @Autowired
+    CategorySubRepository categorySubRepository;
+
+    public List<CategoryEntityDTO> findAllCategory(String orderBy, String typeOrder, int page, int size, Long id) {
+        Sort sort = Sort.by(Sort.Order.desc(orderBy));
+//        if (typeOrder.equals("asc")) {
+//            sort = Sort.by(Sort.Order.desc(orderBy));
+//        }
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -41,58 +47,71 @@ public class CategoryService {
 
         return findAllCategories
                 .stream()
-                .map(category -> new CategoryResDTO(category.getId(),category.getName()))
+                .map(Category::toDto)
                 .collect(Collectors.toList());
     }
 
-    public CategoryResDTO findCategoryById(Long id) {
-        Category findCategory = categoryRepository
+    public CategoryEntityDTO findCategoryById(Long id) {
+
+        return categoryRepository
                 .findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "categories not found"));
-        return CategoryResDTO
-                .builder()
-                .id(findCategory.getId())
-                .categoryName(findCategory.getName())
-                .build();
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "category is not found"))
+                .toDto();
     }
 
     @Transactional
-    public CategoryResDTO saveCategory(CategoryReqDTO categoryReqDTO) {
+    public CategoryEntityDTO saveCategory(CategoryReqDTO categoryReqDTO) {
         Category category = new Category();
-        category.setName(categoryReqDTO.getNameCategory());
+        category.setName(categoryReqDTO.getName());
+        category.setDescription(categoryReqDTO.getDescription());
+//        List<CategorySub> subCategories= categoryReqDTO
+//                .getSubCategories()
+//                .stream()
+//                .map(subCategory -> {
+//                    CategorySub sub = new CategorySub();
+//                    sub.setName(subCategory.getName());
+//                    sub.setDescription(subCategory.getDescription());
+//                    sub.setCategory(category);
+//                    return sub;
+//                }).collect(Collectors.toList());
+//        category.setSubCategories(subCategories);
 
-        Category createdCategory = categoryRepository.save(category);
-        CategoryResDTO categoryResDTO = new CategoryResDTO(createdCategory.getId(), createdCategory.getName());
-        return CategoryResDTO
-                .builder()
-                .id(createdCategory.getId())
-                .categoryName(category.getName())
-                .build();
+        return categoryRepository.save(category).toDto();
     }
 
     @Transactional
-    public CategoryResDTO updateCategory(CategoryReqDTO categoryReqDTO, Long id) {
-        Category findCategory = categoryRepository
+    public CategoryEntityDTO updateCategory(CategoryReqDTO categoryReqDTO, Long id) {
+        Category category = categoryRepository
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "category is not found"));
-        findCategory.setName(categoryReqDTO.getNameCategory());
 
-        categoryRepository.save(findCategory);
+        category.setName(categoryReqDTO.getName());
+        category.setDescription(category.getDescription());
 
-        return CategoryResDTO
-                .builder()
-                .id(findCategory.getId())
-                .categoryName(findCategory.getName())
-                .build();
+        categorySubRepository.deleteAllByParentId(category);
+//        List<CategorySub> subCategories= categoryReqDTO
+//                .getSubCategories()
+//                .stream()
+//                .map(subCategory -> {
+//                    CategorySub sub = new CategorySub();
+//                    sub.setName(subCategory.getName());
+//                    sub.setDescription(subCategory.getDescription());
+//                    sub.setCategory(category);
+//                    return sub;
+//                }).collect(Collectors.toList());
+
+//        category.setSubCategories(subCategories);
+
+        return categoryRepository.save(category).toDto();
     }
+
     @Transactional
     public boolean deleteCategory(Long id) {
-        Category findCategory = categoryRepository
+        categoryRepository
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "category is not found"));
 
-
-        categoryRepository.delete(findCategory);
+        categoryRepository.deleteById(id);
         return true;
     }
 }

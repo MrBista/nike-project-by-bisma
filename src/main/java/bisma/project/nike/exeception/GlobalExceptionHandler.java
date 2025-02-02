@@ -1,19 +1,25 @@
 package bisma.project.nike.exeception;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.support.MetaDataAccessException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -38,10 +44,26 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handleStatusErr(ResponseStatusException err) {
-        logger.error("error: ", err);
+        logger.error("er ", err);
         HttpStatus status = (HttpStatus) err.getStatusCode();
         List<String> errors = List.of(err.getBody().getDetail());
+
         return generateErrResponse(errors, "Failed to get data", status);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> userNameNotFound(UsernameNotFoundException err) {
+        logger.debug("val -> ", err);
+        return generateErrResponse("username not found", "username not found", HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handle(ConstraintViolationException exception) {
+        Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
+        List<String> res = violations
+                .stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toList());
+        return generateErrResponse(res, "Failed to get data", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

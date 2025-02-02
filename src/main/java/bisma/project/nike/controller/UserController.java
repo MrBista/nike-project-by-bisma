@@ -10,6 +10,13 @@ import bisma.project.nike.repository.RoleRepository;
 import bisma.project.nike.repository.UserRepository;
 import bisma.project.nike.auth.JwtUtils;
 import bisma.project.nike.auth.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,8 +33,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Tag(name = "1. Auth", description = "This endpoint is used to register and login")
 @RestController
 @RequestMapping("/api/v1/users")
+@CrossOrigin(origins = "http://localhost:8000", maxAge = 3600, allowCredentials="true")
 public class UserController {
 //    @GetMapping
 //    public
@@ -67,21 +76,21 @@ public class UserController {
         List<String> roles = signUpRequestDTO.getRoles();
         Set<Role> createRoles = new HashSet<>();
         if (signUpRequestDTO.getRoles() == null) {
-            Role role = roleRepository.findByRoleName(ERole.USER).orElseThrow(() -> new RuntimeException("role not found"));
+            Role role = roleRepository.findByRoleName(ERole.USER.name()).orElseThrow(() -> new RuntimeException("role not found"));
             createRoles.add(role);
         } else {
             roles.forEach(role -> {
                 switch (role.toLowerCase()) {
                     case "superAdmin":
-                        Role superAdmin = roleRepository.findByRoleName(ERole.SUPER_ADMIN).orElseThrow(() -> new RuntimeException("Role is not found"));
+                        Role superAdmin = roleRepository.findByRoleName(ERole.SUPER_ADMIN.name()).orElseThrow(() -> new RuntimeException("Role is not found"));
                         createRoles.add(superAdmin);
                         break;
                     case "admin":
-                        Role admin = roleRepository.findByRoleName(ERole.ADMIN).orElseThrow(() -> new RuntimeException("Role is not found"));
+                        Role admin = roleRepository.findByRoleName(ERole.ADMIN.name()).orElseThrow(() -> new RuntimeException("Role is not found"));
                         createRoles.add(admin);
                         break;
                     default:
-                        Role userRole = roleRepository.findByRoleName(ERole.USER).orElseThrow(() -> new RuntimeException("Role is not found"));
+                        Role userRole = roleRepository.findByRoleName(ERole.USER.name()).orElseThrow(() -> new RuntimeException("Role is not found"));
                         createRoles.add(userRole);
                         break;
 
@@ -102,11 +111,19 @@ public class UserController {
         return CommonResponse.generateResponse(resData, "succesfully create user", HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Retrieve a token to used in every request",
+            description = "Get a Tutorial object by specifying its id. The response is Tutorial object with id, title, description and published status.",
+            tags = { "tutorials", "get" })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
     @PostMapping("/signin")
     public ResponseEntity<Object>userLogin(@Valid @RequestBody SignInRequestDTO signInRequestDTO) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(signInRequestDTO.getEmail() != null ? signInRequestDTO.getEmail() : signInRequestDTO.getUsername(), signInRequestDTO.getPassword()));
+                .authenticate(new UsernamePasswordAuthenticationToken(signInRequestDTO.getEmail(), signInRequestDTO.getPassword()));
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
         String generatedToken = jwtUtils.generateJwtToken(authentication);
@@ -118,8 +135,19 @@ public class UserController {
         resData.put("email", userDetails.getEmail());
         resData.put("roles", userDetails.getAuthorities().stream().map(val -> val.getAuthority()).collect(Collectors.toList()));
         resData.put("token", generatedToken);
+        resData.put("typeToken", "Bearer");
         return CommonResponse.generateResponse(resData, "Successfully login", HttpStatus.OK) ;
     }
 
+    @Hidden
+    @RequestMapping(path = "/addresses/{userId}", method = RequestMethod.POST)
+    public ResponseEntity<Object> insertAddress(@PathVariable Long userId) {
+        User findUserById = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user is not found"));
 
+
+
+        return null;
+    }
 }

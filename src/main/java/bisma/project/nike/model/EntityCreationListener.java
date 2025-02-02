@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @EntityListeners(AuditingEntityListener.class)
 public class EntityCreationListener {
@@ -18,18 +20,15 @@ public class EntityCreationListener {
     public void prePersist(Object entity) {
         if (entity instanceof Auditable) {
             Auditable auditable = (Auditable) entity;
-            long currentTimeMillis = System.currentTimeMillis();
-            Timestamp now = new Timestamp(currentTimeMillis);
-            auditable.setCreatedAt(now);
-            auditable.setUpdatedAt(now);
 
-            auditable.setCreatedBy(getLoggedInUsername());
+            long currentDateEpoch = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000;
+
+            auditable.setCreatedAt(currentDateEpoch);
+            auditable.setUpdatedAt(currentDateEpoch);
         }
         if (entity instanceof Product) {
             Product product = (Product) entity;
-            if (product.getStatus() == null) {
-                product.setStatus(1L);
-            }
+
 
         }
     }
@@ -38,9 +37,10 @@ public class EntityCreationListener {
     public void preUpdate(Object entity) {
         if (entity instanceof Auditable ) {
             Auditable auditable = (Auditable) entity;
-            long currentTimeMillis = System.currentTimeMillis();
-            Timestamp timestampNow = new Timestamp(currentTimeMillis);
-            auditable.setUpdatedAt(timestampNow);
+
+            long currentDateEpoch = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000;
+
+            auditable.setUpdatedAt(currentDateEpoch);
         }
     }
 
