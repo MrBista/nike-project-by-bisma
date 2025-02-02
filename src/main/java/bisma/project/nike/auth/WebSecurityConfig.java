@@ -83,6 +83,8 @@ public class WebSecurityConfig {
 
                         auth
                                 .requestMatchers(HttpMethod.POST, "/api/v1/users/*").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/swagger.html").permitAll()
+
                                 .requestMatchers(HttpMethod.POST, "/api/v1/categories").hasAnyAuthority(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
                                 .requestMatchers(HttpMethod.PUT, "/api/v1/categories/*").hasAnyAuthority(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
                                 .requestMatchers(HttpMethod.DELETE, "/api/v1/categories/*").hasAnyAuthority(ERole.ADMIN.name(), ERole.SUPER_ADMIN.name())
